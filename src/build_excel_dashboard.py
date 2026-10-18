@@ -182,7 +182,7 @@ def build(report_dir=None, output=None):
     ws["A35"].font = Font(italic=True, color=TEAL, size=10)
     for col in "ABCDEFGHIJKLM":
         ws.column_dimensions[col].width = 17 if col != "A" else 23
-    ws.freeze_panes = "A10"
+    ws.freeze_panes = "A11"
     ws.sheet_view.zoomScale = 85
     ws.print_options.horizontalCentered = True
     ws.sheet_properties.pageSetUpPr.fitToPage = True
