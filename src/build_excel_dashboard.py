@@ -9,6 +9,8 @@ from pathlib import Path
 
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, LineChart, Reference
+from openpyxl.chart.label import DataLabelList
+from openpyxl.chart.shapes import GraphicalProperties
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
@@ -136,33 +138,51 @@ def build(report_dir=None, output=None):
     )
     chart_data.sheet_properties.tabColor = TEAL
     end = len(months) + 1
+    # Compact, readable charts: real numeric source data, one series each,
+    # visible axis tick labels, consistent colors, and no misleading legends.
+    categories = Reference(chart_data, min_col=1, min_row=2, max_row=end)
     traffic_chart = LineChart()
     traffic_chart.title = "Monthly Digital Sessions"
-    traffic_chart.y_axis.title = "Sessions"
-    traffic_chart.add_data(Reference(chart_data, min_col=2, min_row=1, max_row=end), titles_from_data=True, from_rows=False)
-    traffic_chart.series[0].graphicalProperties.line.solidFill = BLUE
+    traffic_chart.style = 13
+    traffic_chart.add_data(Reference(chart_data, min_col=2, min_row=1, max_row=end), titles_from_data=True)
+    traffic_chart.set_categories(categories)
     traffic_chart.legend = None
-    traffic_chart.set_categories(Reference(chart_data, min_col=1, min_row=2, max_row=end))
-    traffic_chart.x_axis.title = None
-    traffic_chart.x_axis.tickLblPos = "nextTo"
+    traffic_chart.width, traffic_chart.height = 18.5, 9
+    traffic_chart.y_axis.title = None
+    traffic_chart.y_axis.numFmt = '#,##0'
     traffic_chart.y_axis.scaling.min = 0
-    traffic_chart.width = 19
-    traffic_chart.height = 8.8
-    traffic_chart.grouping = "standard"
+    traffic_chart.y_axis.majorGridlines = None
+    traffic_chart.y_axis.tickLblPos = "nextTo"
+    traffic_chart.x_axis.tickLblPos = "nextTo"
+    traffic_chart.x_axis.tickMarkSkip = 1
+    traffic_chart.x_axis.lblOffset = 100
+    traffic_chart.x_axis.crosses = "min"
+    traffic_chart.series[0].graphicalProperties.line.solidFill = BLUE
+    traffic_chart.series[0].graphicalProperties.line.width = 32000
+    traffic_chart.series[0].smooth = False
     traffic_chart.display_blanks = "gap"
     ws.add_chart(traffic_chart, "G9")
 
     revenue_chart = BarChart()
-    revenue_chart.title = "Monthly Booked Ad Revenue"
-    revenue_chart.y_axis.title = "USD"
-    revenue_chart.add_data(Reference(chart_data, min_col=4, min_row=1, max_row=end), titles_from_data=True, from_rows=False)
+    revenue_chart.type = "col"
+    revenue_chart.grouping = "clustered"
+    revenue_chart.overlap = 0
+    revenue_chart.title = "Monthly Booked Advertising Revenue"
+    revenue_chart.style = 10
+    revenue_chart.add_data(Reference(chart_data, min_col=4, min_row=1, max_row=end), titles_from_data=True)
+    revenue_chart.set_categories(categories)
     revenue_chart.legend = None
-    revenue_chart.set_categories(Reference(ws, min_col=1, min_row=11, max_row=end))
-    revenue_chart.x_axis.title = None
-    revenue_chart.x_axis.tickLblPos = "nextTo"
+    revenue_chart.width, revenue_chart.height = 18.5, 9
+    revenue_chart.y_axis.title = None
+    revenue_chart.y_axis.numFmt = '"$"#,##0'
     revenue_chart.y_axis.scaling.min = 0
-    revenue_chart.width = 19
-    revenue_chart.height = 8.8
+    revenue_chart.y_axis.majorGridlines = None
+    revenue_chart.y_axis.tickLblPos = "nextTo"
+    revenue_chart.x_axis.tickLblPos = "nextTo"
+    revenue_chart.x_axis.crosses = "min"
+    revenue_chart.series[0].graphicalProperties.solidFill = TEAL
+    revenue_chart.series[0].graphicalProperties.line.noFill = True
+    revenue_chart.gapWidth = 65
     ws.add_chart(revenue_chart, "G28")
 
     ws["A26"] = "PUBLICATION COMPARISON"
