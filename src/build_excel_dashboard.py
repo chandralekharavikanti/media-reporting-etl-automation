@@ -65,13 +65,13 @@ def build(report_dir=None, output=None):
     make_table(wb, "Print Circulation", ["Month", "Publication", "Print Copies"], circ_rows)
     quality_sheet = make_table(wb, "Data Quality", ["Source", "Row or ID", "Finding"], [[r["source"], r["row_or_id"], r["issue"]] for r in audit])
     if not audit:
-        quality_sheet["A3"] = "VALIDATION PASSED"
-        quality_sheet["B3"] = "0 issues detected"
-        quality_sheet["C3"] = "All source rows passed the configured checks."
-        for cell in quality_sheet[3][:3]:
+        quality_sheet["E3"] = "VALIDATION PASSED"
+        quality_sheet["F3"] = "0 issues detected"
+        quality_sheet["G3"] = "All source rows passed the configured checks."
+        for cell in quality_sheet[3][4:7]:
             cell.fill = PatternFill("solid", fgColor="E8F5E9")
             cell.font = Font(color="176B39", bold=True)
-        quality_sheet.column_dimensions["C"].width = 48
+        quality_sheet.column_dimensions["G"].width = 48
 
     ws.merge_cells("A1:M2")
     ws["A1"] = "MEDIA REPORTING  |  EXECUTIVE DASHBOARD"
@@ -124,7 +124,10 @@ def build(report_dir=None, output=None):
     traffic_chart.title = "Monthly Digital Sessions"
     traffic_chart.y_axis.title = "Sessions"
     traffic_chart.add_data(Reference(ws, min_col=2, min_row=10, max_row=end), titles_from_data=True, from_rows=False)
+    traffic_chart.series[0].graphicalProperties.line.solidFill = BLUE
+    traffic_chart.legend = None
     traffic_chart.set_categories(Reference(ws, min_col=1, min_row=11, max_row=end))
+    traffic_chart.x_axis.title = "Month"
     traffic_chart.width = 17
     traffic_chart.height = 8
     traffic_chart.grouping = "standard"
@@ -135,7 +138,9 @@ def build(report_dir=None, output=None):
     revenue_chart.title = "Monthly Booked Ad Revenue"
     revenue_chart.y_axis.title = "USD"
     revenue_chart.add_data(Reference(ws, min_col=4, min_row=10, max_row=end), titles_from_data=True, from_rows=False)
+    revenue_chart.legend = None
     revenue_chart.set_categories(Reference(ws, min_col=1, min_row=11, max_row=end))
+    revenue_chart.x_axis.title = "Month"
     revenue_chart.width = 17
     revenue_chart.height = 8
     ws.add_chart(revenue_chart, "G26")
