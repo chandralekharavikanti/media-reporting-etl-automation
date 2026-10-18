@@ -119,17 +119,35 @@ def build(report_dir=None, output=None):
             for cell in ws[row_num][:5]:
                 cell.fill = PatternFill("solid", fgColor=PALE)
 
-    end = 10 + len(months)
+    # Chart data uses numeric values rather than formula cells: Excel for Mac and
+    # non-Excel viewers can render it without waiting for formula recalculation.
+    aggregates = defaultdict(lambda: [0, 0, 0, 0])
+    for month, publication, sessions, pageviews, booked in media_rows:
+        aggregates[month][0] += sessions
+        aggregates[month][1] += pageviews
+        aggregates[month][2] += booked
+    for month, publication, copies in circ_rows:
+        aggregates[month][3] += copies
+    chart_data = make_table(
+        wb, "Chart Data",
+        ["Month", "Sessions", "Pageviews", "Booked Revenue", "Print Copies"],
+        [[month] + aggregates[month] for month in months],
+        4,
+    )
+    chart_data.sheet_properties.tabColor = TEAL
+    end = len(months) + 1
     traffic_chart = LineChart()
     traffic_chart.title = "Monthly Digital Sessions"
     traffic_chart.y_axis.title = "Sessions"
-    traffic_chart.add_data(Reference(ws, min_col=2, min_row=10, max_row=end), titles_from_data=True, from_rows=False)
+    traffic_chart.add_data(Reference(chart_data, min_col=2, min_row=1, max_row=end), titles_from_data=True, from_rows=False)
     traffic_chart.series[0].graphicalProperties.line.solidFill = BLUE
     traffic_chart.legend = None
-    traffic_chart.set_categories(Reference(ws, min_col=1, min_row=11, max_row=end))
-    traffic_chart.x_axis.title = "Month"
-    traffic_chart.width = 17
-    traffic_chart.height = 8
+    traffic_chart.set_categories(Reference(chart_data, min_col=1, min_row=2, max_row=end))
+    traffic_chart.x_axis.title = None
+    traffic_chart.x_axis.tickLblPos = "nextTo"
+    traffic_chart.y_axis.scaling.min = 0
+    traffic_chart.width = 19
+    traffic_chart.height = 8.8
     traffic_chart.grouping = "standard"
     traffic_chart.display_blanks = "gap"
     ws.add_chart(traffic_chart, "G9")
@@ -137,13 +155,15 @@ def build(report_dir=None, output=None):
     revenue_chart = BarChart()
     revenue_chart.title = "Monthly Booked Ad Revenue"
     revenue_chart.y_axis.title = "USD"
-    revenue_chart.add_data(Reference(ws, min_col=4, min_row=10, max_row=end), titles_from_data=True, from_rows=False)
+    revenue_chart.add_data(Reference(chart_data, min_col=4, min_row=1, max_row=end), titles_from_data=True, from_rows=False)
     revenue_chart.legend = None
     revenue_chart.set_categories(Reference(ws, min_col=1, min_row=11, max_row=end))
-    revenue_chart.x_axis.title = "Month"
-    revenue_chart.width = 17
-    revenue_chart.height = 8
-    ws.add_chart(revenue_chart, "G26")
+    revenue_chart.x_axis.title = None
+    revenue_chart.x_axis.tickLblPos = "nextTo"
+    revenue_chart.y_axis.scaling.min = 0
+    revenue_chart.width = 19
+    revenue_chart.height = 8.8
+    ws.add_chart(revenue_chart, "G28")
 
     ws["A26"] = "PUBLICATION COMPARISON"
     ws["A26"].font = Font(bold=True, color=NAVY, size=13)
@@ -163,6 +183,11 @@ def build(report_dir=None, output=None):
     for col in "ABCDEFGHIJKLM":
         ws.column_dimensions[col].width = 17 if col != "A" else 23
     ws.freeze_panes = "A10"
+    ws.sheet_view.zoomScale = 85
+    ws.print_options.horizontalCentered = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToWidth = 1
+    ws.print_area = "A1:M47"
     output.parent.mkdir(parents=True, exist_ok=True)
     wb.save(output)
     return output
