@@ -1,5 +1,7 @@
 # Multi-Source Media Reporting ETL & Automation
 
+Automated media reporting pipeline using Python, SQL, SQLite, and Excel. Consolidates synthetic digital traffic, print circulation, and advertising data into validated reporting tables and an executive dashboard.
+
 **Portfolio demonstration using synthetic media data (not SME company data).**
 
 ## Business problem
