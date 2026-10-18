@@ -63,7 +63,15 @@ def build(report_dir=None, output=None):
     make_table(wb, "Monthly Media", ["Month", "Publication", "Sessions", "Pageviews", "Booked Revenue"], media_rows, 5)
     make_table(wb, "Daily Traffic", ["Date", "Sessions", "Pageviews"], [[r["date"], int(r["sessions"]), int(r["pageviews"])] for r in daily])
     make_table(wb, "Print Circulation", ["Month", "Publication", "Print Copies"], circ_rows)
-    make_table(wb, "Data Quality", ["Source", "Row or ID", "Finding"], [[r["source"], r["row_or_id"], r["issue"]] for r in audit])
+    quality_sheet = make_table(wb, "Data Quality", ["Source", "Row or ID", "Finding"], [[r["source"], r["row_or_id"], r["issue"]] for r in audit])
+    if not audit:
+        quality_sheet["A3"] = "VALIDATION PASSED"
+        quality_sheet["B3"] = "0 issues detected"
+        quality_sheet["C3"] = "All source rows passed the configured checks."
+        for cell in quality_sheet[3][:3]:
+            cell.fill = PatternFill("solid", fgColor="E8F5E9")
+            cell.font = Font(color="176B39", bold=True)
+        quality_sheet.column_dimensions["C"].width = 48
 
     ws.merge_cells("A1:M2")
     ws["A1"] = "MEDIA REPORTING  |  EXECUTIVE DASHBOARD"
@@ -117,8 +125,11 @@ def build(report_dir=None, output=None):
     traffic_chart.y_axis.title = "Sessions"
     traffic_chart.add_data(Reference(ws, min_col=2, min_row=10, max_row=end), titles_from_data=True)
     traffic_chart.set_categories(Reference(ws, min_col=1, min_row=11, max_row=end))
+    traffic_chart.series[0].title = None
     traffic_chart.width = 17
     traffic_chart.height = 8
+    traffic_chart.grouping = "standard"
+    traffic_chart.display_blanks = "gap"
     ws.add_chart(traffic_chart, "G9")
 
     revenue_chart = BarChart()
@@ -126,6 +137,7 @@ def build(report_dir=None, output=None):
     revenue_chart.y_axis.title = "USD"
     revenue_chart.add_data(Reference(ws, min_col=4, min_row=10, max_row=end), titles_from_data=True)
     revenue_chart.set_categories(Reference(ws, min_col=1, min_row=11, max_row=end))
+    revenue_chart.series[0].title = None
     revenue_chart.width = 17
     revenue_chart.height = 8
     ws.add_chart(revenue_chart, "G26")
