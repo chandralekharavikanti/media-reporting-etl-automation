@@ -3,11 +3,16 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from openpyxl import load_workbook
-from src.build_excel_dashboard import build
+try:
+    from openpyxl import load_workbook
+    from src.build_excel_dashboard import build
+except ImportError:
+    load_workbook = None
+    build = None
 
 ROOT = Path(__file__).resolve().parents[1]
 
+@unittest.skipUnless(load_workbook is not None, "openpyxl is optional in the standard-library ETL workflow")
 class ExcelDashboardTests(unittest.TestCase):
     def test_chart_data_and_quality_count(self):
         with tempfile.TemporaryDirectory() as directory:
