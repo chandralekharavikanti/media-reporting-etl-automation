@@ -123,9 +123,8 @@ def build(report_dir=None, output=None):
     traffic_chart = LineChart()
     traffic_chart.title = "Monthly Digital Sessions"
     traffic_chart.y_axis.title = "Sessions"
-    traffic_chart.add_data(Reference(ws, min_col=2, min_row=10, max_row=end), titles_from_data=True)
+    traffic_chart.add_data(Reference(ws, min_col=2, min_row=10, max_row=end), titles_from_data=True, from_rows=False)
     traffic_chart.set_categories(Reference(ws, min_col=1, min_row=11, max_row=end))
-    traffic_chart.series[0].title = None
     traffic_chart.width = 17
     traffic_chart.height = 8
     traffic_chart.grouping = "standard"
@@ -135,9 +134,8 @@ def build(report_dir=None, output=None):
     revenue_chart = BarChart()
     revenue_chart.title = "Monthly Booked Ad Revenue"
     revenue_chart.y_axis.title = "USD"
-    revenue_chart.add_data(Reference(ws, min_col=4, min_row=10, max_row=end), titles_from_data=True)
+    revenue_chart.add_data(Reference(ws, min_col=4, min_row=10, max_row=end), titles_from_data=True, from_rows=False)
     revenue_chart.set_categories(Reference(ws, min_col=1, min_row=11, max_row=end))
-    revenue_chart.series[0].title = None
     revenue_chart.width = 17
     revenue_chart.height = 8
     ws.add_chart(revenue_chart, "G26")
