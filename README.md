@@ -12,6 +12,7 @@ Four source CSVs → Python validation and deduplication → SQLite warehouse �
 Python 3.10+; no third-party packages required.
 
 ```bash
+python -m src.generate_sample_data
 python -m src.pipeline
 python -m unittest discover -s tests -v
 ```
