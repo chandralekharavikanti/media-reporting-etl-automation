@@ -1,0 +1,38 @@
+name: Excel Executive Dashboard
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-excel-dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Excel dependency
+        run: python -m pip install "openpyxl>=3.1,<4"
+      - name: Generate deterministic sample inputs
+        run: python -m src.generate_sample_data
+      - name: Run reporting ETL
+        run: python -m src.pipeline
+      - name: Build Excel dashboard
+        run: python -m src.build_excel_dashboard
+      - name: Test reporting pipeline
+        run: python -m unittest discover -s tests -v
+      - name: Upload executive workbook and CSV reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: media-executive-reporting
+          path: |
+            reports/*.xlsx
+            reports/*.csv
+          if-no-files-found: error
