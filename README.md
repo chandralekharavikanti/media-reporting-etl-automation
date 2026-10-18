@@ -25,3 +25,8 @@ Daily and weekly traffic; monthly circulation and publication performance. All d
 
 ## Portfolio scope
 Pipeline source, tests, sample data, and report outputs are supplied in the project package.
+## Executive Excel reporting deliverable
+
+The reporting layer also has an Excel executive dashboard workbook with five worksheets: **Executive Dashboard**, **Monthly Media**, **Daily Traffic**, **Print Circulation**, and **Data Quality**. It includes formula-based KPIs and a monthly sessions trend chart. The workbook is a companion deliverable generated from synthetic report CSVs; the GitHub Actions workflow currently publishes the underlying CSV files as downloadable artifacts. The Excel workbook itself is not yet hosted in this repository.
+
+To inspect the reproducible source data, open **Actions → Reporting pipeline → latest successful run → Artifacts → media-reporting-outputs**. Open the CSV reports in Excel or Numbers.
